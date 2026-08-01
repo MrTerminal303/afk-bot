@@ -27,7 +27,6 @@ async fn handle(bot: Client, event: Event, _state: State) -> anyhow::Result<()> 
 async fn anti_afk_loop(bot: Client) {
     loop {
         tokio::time::sleep(Duration::from_secs(25)).await;
-        bot.swing_arm();
         bot.set_jumping(true);
         tokio::time::sleep(Duration::from_millis(250)).await;
         bot.set_jumping(false);
@@ -60,16 +59,12 @@ async fn main() {
         let account = Account::offline(&username);
         println!("Connecting to {server_addr} as {username}...");
 
-        let result = ClientBuilder::new()
+        let _app_exit = ClientBuilder::new()
             .set_handler(handle)
             .start(account, server_addr.as_str())
             .await;
 
-        if let Err(e) = result {
-            println!("Connection ended: {e:?}. Reconnecting in 10s...");
-        } else {
-            println!("Session ended cleanly. Reconnecting in 10s...");
-        }
+        println!("Session ended. Reconnecting in 10s...");
 
         tokio::time::sleep(Duration::from_secs(10)).await;
     }

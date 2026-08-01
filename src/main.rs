@@ -11,6 +11,10 @@ async fn handle(bot: Client, event: Event, _state: State) -> anyhow::Result<()> 
     match event {
         Event::Login => {
             println!("Bot connected.");
+            let bot = bot.clone();
+            tokio::spawn(async move {
+                anti_afk_loop(bot).await;
+            });
         }
         Event::Disconnect(reason) => {
             println!("Disconnected: {reason:?}");
@@ -18,6 +22,16 @@ async fn handle(bot: Client, event: Event, _state: State) -> anyhow::Result<()> 
         _ => {}
     }
     Ok(())
+}
+
+async fn anti_afk_loop(bot: Client) {
+    loop {
+        tokio::time::sleep(Duration::from_secs(25)).await;
+        bot.swing_arm();
+        bot.set_jumping(true);
+        tokio::time::sleep(Duration::from_millis(250)).await;
+        bot.set_jumping(false);
+    }
 }
 
 fn spawn_health_server() {
